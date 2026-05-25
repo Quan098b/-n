@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Server giám sát phát hiện lửa theo khu</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div>
+            <h1>SERVER GIÁM SÁT PHÁT HIỆN LỬA THEO KHU</h1>
+            <p>Hiển thị hình ảnh client gửi về và kết quả nhận diện lửa theo từng khu vực</p>
+        </div>
+
+        <button onclick="loadZones()">Làm mới</button>
+    </header>
+
+    <section class="create-box">
+        <input id="zoneNameInput" type="text" placeholder="Nhập tên khu mới, ví dụ: Khu kho lạnh">
+        <button onclick="createZone()">+ Tạo khu</button>
+    </section>
+
+    <section id="zoneContainer" class="zone-grid">
+    </section>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
