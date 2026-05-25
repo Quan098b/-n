@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/txtNoiDungLichSu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Phát hiện lúc 10:28"
+        android:textColor="@color/mauChuChinh"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/txtThoiGianLichSu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="2026-05-14 15:10:20"
+        android:textColor="@color/mauChuPhu"
+        android:textSize="12sp" />
+
+    <ImageView
+        android:id="@+id/imgMinhChungLichSu"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_marginTop="10dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="14dp"
+        android:background="#E5E7EB" />
+
+</LinearLayout>

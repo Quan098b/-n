@@ -1,0 +1,378 @@
+MÔ TẢ HỆ THỐNG PHÁT HIỆN LỬA GỒM CLIENT - SERVER - APP ĐIỆN THOẠI
+
+1. MỤC ĐÍCH HỆ THỐNG
+Hệ thống này dùng để giám sát và phát hiện lửa theo thời gian thực. Toàn bộ giải pháp được chia thành 3 phần chính:
+- Client: chạy tại máy có camera, chụp hình và gửi frame lên server.
+- Server: nhận ảnh từ client, chạy AI nhận diện lửa, lưu lịch sử, phát cảnh báo và cung cấp giao diện/API.
+- App điện thoại: giúp người dùng theo dõi trạng thái các khu và nhận thông báo cảnh báo cháy từ xa.
+
+Hệ thống phù hợp cho mô hình nhiều khu vực giám sát. Mỗi client sẽ gửi dữ liệu camera cho một khu cụ thể trên server.
+
+==================================================
+2. KIẾN TRÚC TỔNG THỂ
+
+Luồng hoạt động tổng quát:
+Camera tại client -> Client gửi ảnh qua mạng -> Server nhận ảnh -> AI nhận diện lửa -> Server cập nhật trạng thái khu -> Lưu lịch sử + ảnh minh chứng -> Gửi cảnh báo tới app điện thoại
+
+Ngoài ra:
+- Server còn có giao diện web để xem trạng thái và luồng ảnh.
+- Server có giao diện desktop để quản lý khi chạy tại máy chủ.
+- App điện thoại truy cập API server để xem danh sách khu, ảnh mới nhất và lịch sử cảnh báo.
+- App điện thoại còn nhận push notification qua Firebase Cloud Messaging (FCM).
+
+==================================================
+3. THÀNH PHẦN 1 - SERVER
+Thư mục: D:\DuAn\DoAn\server
+
+3.1. Vai trò của server
+Server là trung tâm của toàn bộ hệ thống. Nhiệm vụ chính:
+- Nhận frame ảnh từ các client.
+- Chạy model AI YOLO để phát hiện lửa.
+- Quản lý nhiều khu giám sát.
+- Trả dữ liệu cho web/app.
+- Lưu lịch sử sự cố và ảnh minh chứng.
+- Gửi thông báo cháy về điện thoại.
+- Phát cảnh báo âm thanh khi có cháy.
+
+3.2. Công nghệ chính ở server
+- Python
+- Flask: xây dựng web server và API
+- OpenCV: xử lý ảnh và mã hóa ảnh
+- YOLO model: file best.pt để nhận diện lửa
+- Tkinter: giao diện desktop quản lý server
+- Firebase Admin SDK: gửi thông báo đẩy FCM đến app điện thoại
+- Cloudflared tunnel: công khai server qua domain https://api.khanhquan.lol
+
+3.3. File code chính của server
+
+(1) may_chu_lua.py
+Đây là file khởi động chính của server. Chức năng:
+- Tạo ứng dụng Flask.
+- Nạp danh sách khu ban đầu.
+- Nạp token điện thoại đã đăng ký.
+- Khởi động Cloudflared tunnel.
+- Nạp model YOLO.
+- Chạy server Flask ở nền.
+- Mở giao diện desktop Tkinter để quản lý server.
+
+=> Có thể xem đây là trung tâm điều phối toàn bộ server.
+
+(2) dinh_tuyen_api.py
+File này đăng ký toàn bộ API route của server. Các API quan trọng gồm:
+- GET /api/health: kiểm tra server còn hoạt động.
+- GET /api/zones: lấy danh sách khu.
+- POST /api/zones: tạo khu mới.
+- DELETE /api/zones/<ma_khu>: xóa khu.
+- GET/POST /api/zones/<ma_khu>/settings: xem/cập nhật cấu hình khu.
+- POST /api/zones/<ma_khu>/release: client nhả khu khi dừng.
+- GET /api/zones/<ma_khu>/history: lấy lịch sử cảnh báo của khu.
+- DELETE /api/zones/<ma_khu>/history: xóa lịch sử khu.
+- POST /api/mobile/register-token: app điện thoại đăng ký token nhận thông báo.
+- GET /api/frame/<ma_khu>: lấy ảnh JPG mới nhất của khu.
+- GET /stream/<ma_khu>: xem luồng ảnh MJPEG theo thời gian thực.
+- POST /api/frame: client gửi ảnh camera lên server để xử lý.
+
+=> Đây là lớp giao tiếp chính giữa server với client, web và app điện thoại.
+
+(3) cau_hinh.py
+Chứa cấu hình dùng chung của server:
+- HOST = 0.0.0.0
+- PORT = 5000
+- MODEL_PATH = best.pt
+- ZONE_FILE = zones.json
+- timeout client
+- chất lượng JPG
+- khoảng thời gian tối thiểu giữa các lần nhận diện để giảm tải
+- ngưỡng nhận diện mặc định
+
+=> Đây là nơi gom toàn bộ thông số hệ thống để dễ điều chỉnh.
+
+(4) xu_ly_frame.py
+Đây là module xử lý frame ảnh quan trọng nhất. Chức năng:
+- Nhận frame mới từ client theo từng khu.
+- Kiểm tra khu có đang bị client khác chiếm không.
+- Quyết định có cần chạy AI ngay hay không để giảm tải CPU/GPU.
+- Gọi model AI để nhận diện lửa.
+- Cập nhật trạng thái mới nhất của khu.
+- Khi phát hiện lửa đủ điều kiện thời gian thì:
+  + lưu lịch sử,
+  + lưu ảnh minh chứng,
+  + bật báo động âm thanh,
+  + gửi thông báo đến điện thoại.
+- Khi không còn phát hiện lửa thì tắt báo động.
+- Tạo ảnh JPG và luồng MJPEG để web/app có thể xem.
+
+=> Đây là lõi nghiệp vụ xử lý ảnh thời gian thực.
+
+(5) xu_ly_khu.py
+Quản lý nghiệp vụ các khu giám sát. Chức năng:
+- Đọc và ghi file zones.json.
+- Tạo khu mới.
+- Xóa khu.
+- Cập nhật độ nhạy AI và thời gian lưu cảnh báo cho từng khu.
+- Theo dõi khu nào đang bị client chiếm.
+- Tự giải phóng khu nếu client timeout.
+- Trả snapshot trạng thái hiện tại của toàn bộ khu.
+
+=> Module này giúp hệ thống hỗ trợ nhiều khu độc lập thay vì chỉ một camera duy nhất.
+
+(6) xu_ly_thong_bao_day.py
+Chịu trách nhiệm gửi push notification về điện thoại. Chức năng:
+- Đọc/lưu token FCM từ file mobile_tokens.json.
+- Khởi tạo Firebase Admin bằng file baochay.json.
+- Nhận token do app gửi lên và lưu lại.
+- Khi có cháy thì gửi thông báo đến toàn bộ điện thoại đã đăng ký.
+- Nếu token lỗi thì loại bỏ khỏi danh sách.
+
+=> Đây là cầu nối giữa server Python và app điện thoại Android.
+
+3.4. Các file dữ liệu và tài nguyên quan trọng ở server
+- best.pt: model AI YOLO dùng để nhận diện lửa.
+- zones.json: lưu danh sách các khu giám sát.
+- mobile_tokens.json: lưu token của các điện thoại nhận cảnh báo.
+- baochay.json: service account Firebase để gửi FCM.
+- history/: lưu lịch sử sự cố và ảnh minh chứng.
+- static/ và templates/: giao diện web của server.
+- Am_Thanh/canh_bao.mp3: âm thanh báo cháy.
+
+3.5. Đặc điểm hoạt động của server
+- Server vừa có API, vừa có web, vừa có giao diện desktop.
+- Có thể phục vụ nhiều client tương ứng nhiều khu.
+- Có cơ chế chống 2 client cùng ghi vào một khu.
+- Có cơ chế timeout để tự nhả khu khi client ngắt.
+- Có cơ chế giảm tải bằng cách không chạy AI ở mọi frame liên tiếp.
+- Có thể công khai ra Internet bằng Cloudflared và domain api.khanhquan.lol.
+
+==================================================
+4. THÀNH PHẦN 2 - CLIENT
+Thư mục: D:\DuAn\DoAn\client\DoAn1
+
+4.1. Vai trò của client
+Client là chương trình chạy tại máy có camera. Nhiệm vụ:
+- Quét camera khả dụng.
+- Cho người dùng chọn camera.
+- Hỏi server xem khu nào còn trống.
+- Gửi liên tục frame ảnh camera lên server.
+- Nhả khu khi người dùng dừng hoặc đóng chương trình.
+
+=> Client không xử lý AI chính, mà chủ yếu làm nhiệm vụ thu hình và truyền ảnh.
+
+4.2. Công nghệ chính ở client
+- Python
+- Tkinter: giao diện người dùng
+- OpenCV: mở camera, đọc frame, nén ảnh JPG
+- Requests: gửi HTTP request tới server
+
+4.3. File code chính của client
+
+(1) giao_dien_nguoi_dung.py
+Đây là giao diện desktop cho client. Chức năng:
+- Hiển thị tiêu đề chương trình.
+- Cho chọn camera.
+- Cho hỏi server để lấy danh sách khu còn trống.
+- Cho chọn khu muốn gửi ảnh.
+- Có nút bắt đầu/dừng phát hiện lửa.
+- Hiển thị trạng thái như đang quét camera, đang chạy, mất kết nối...
+- Khi đóng cửa sổ sẽ dừng luồng gửi ảnh an toàn.
+
+=> Đây là phần người dùng thao tác trực tiếp bên phía client.
+
+(2) bo_nhan_dien_lua.py
+Đây là lớp xử lý chính của client. Chức năng:
+- Liệt kê các camera khả dụng trên máy.
+- Mở camera đã chọn.
+- Điều chỉnh kích thước frame trước khi gửi.
+- Nén frame thành JPG.
+- Gửi frame lên API /api/frame của server.
+- Gửi thêm zone_id và client_id để server biết frame thuộc khu nào.
+- Nếu server báo khu đang bị chiếm thì dừng gửi.
+- Khi dừng thì gọi API release để nhả khu.
+- Hỗ trợ chạy cùng Cloudflared khi dùng domain public.
+
+=> Đây là phần giao tiếp trực tiếp giữa camera của client và server xử lý AI.
+
+4.4. Đặc điểm hoạt động của client
+- Chỉ gửi ảnh, không phải xử lý AI nặng.
+- Có thể dùng cho nhiều máy client khác nhau, mỗi máy phụ trách một khu.
+- Giao diện đơn giản, phù hợp demo và sử dụng thực tế.
+- Có cơ chế xử lý lỗi khi mất kết nối hoặc không mở được camera.
+
+==================================================
+5. THÀNH PHẦN 3 - APP ĐIỆN THOẠI ANDROID
+Thư mục: D:\DuAn\DoAn\app
+Package chính: com.example.appgiamsat
+
+5.1. Vai trò của app điện thoại
+App điện thoại giúp người dùng giám sát từ xa mà không cần ngồi trước máy chủ. Chức năng:
+- Xem danh sách các khu.
+- Xem trạng thái từng khu.
+- Xem ảnh hiện tại của khu từ server.
+- Xem lịch sử sự cố và ảnh minh chứng.
+- Nhận thông báo cháy theo thời gian thực qua Firebase.
+
+=> Đây là phần tăng tính thực tế cho hệ thống vì cho phép quản lý từ xa trên điện thoại.
+
+5.2. Công nghệ chính ở app Android
+- Android Studio / Gradle
+- Java
+- Firebase Cloud Messaging (FCM)
+- RecyclerView để hiển thị danh sách khu và lịch sử
+- HTTP kết nối trực tiếp tới server Flask
+- WorkManager có khai báo trong dependencies để phục vụ tác vụ nền
+
+5.3. Cấu hình app
+Từ file build.gradle.kts và AndroidManifest.xml có thể thấy:
+- applicationId: com.example.appgiamsat
+- minSdk: 34
+- targetSdk: 36
+- Có quyền INTERNET
+- Có quyền POST_NOTIFICATIONS
+- Có khai báo Firebase Messaging Service
+
+5.4. File code chính của app
+
+(1) MainActivity.java
+Đây là màn hình chính của app. Chức năng:
+- Tải danh sách khu từ server theo chu kỳ 4 giây/lần.
+- Hiển thị trạng thái kết nối server.
+- Hiển thị các khu giám sát trong RecyclerView.
+- Xin quyền thông báo.
+- Tạo kênh thông báo.
+- Gọi đăng ký lại token Firebase lên server.
+
+=> Đây là màn hình tổng quan giám sát trên điện thoại.
+
+(2) ChiTietKhuActivity.java
+Đây là màn hình chi tiết của từng khu. Chức năng:
+- Hiển thị ảnh hiện tại của khu.
+- Tự tải lại ảnh theo chu kỳ 1.5 giây.
+- Tải lịch sử khu theo chu kỳ 5 giây.
+- Hiển thị các ảnh minh chứng và thông tin sự cố.
+
+=> Đây là nơi người dùng xem sâu hơn một khu cụ thể.
+
+(3) TaiDuLieuMang.java
+Lớp hỗ trợ gọi API server. Chức năng:
+- Gọi API lấy danh sách khu.
+- Chuyển JSON từ server thành danh sách đối tượng Khu.
+- Gọi API lấy lịch sử khu.
+- Tải ảnh bitmap từ server để hiển thị trên app.
+
+=> Đây là tầng giao tiếp mạng của app.
+
+(4) DichVuNhanThongBaoFirebase.java
+Đây là service nhận push notification từ Firebase. Chức năng:
+- Khi có token mới thì gửi token đó lên server.
+- Khi nhận thông báo cháy thì lấy các dữ liệu như:
+  + mã khu,
+  + tên khu,
+  + thời gian cảnh báo,
+  + ảnh minh chứng.
+- Sau đó hiển thị thông báo cảnh báo trên điện thoại.
+
+=> Đây là thành phần giúp app nhận cảnh báo theo thời gian thực.
+
+(5) GuiTokenFirebaseLenServer.java
+Chức năng:
+- Gửi token FCM của thiết bị lên API /api/mobile/register-token trên server.
+- Lưu token đã gửi để tránh gửi lặp không cần thiết.
+- Khi token thay đổi thì đăng ký lại.
+
+=> Đây là phần liên kết app với server để server biết cần gửi cảnh báo cho điện thoại nào.
+
+(6) CauHinhServer.java
+Lưu cấu hình URL server dùng trong app:
+- SERVER_GOC = https://api.khanhquan.lol
+- API danh sách khu
+- API đăng ký token FCM
+- Hàm tạo URL ảnh khu
+- Hàm tạo URL lịch sử khu
+
+=> Đây là nơi cấu hình địa chỉ kết nối app đến server thật.
+
+5.5. Đặc điểm nổi bật của app
+- Không chỉ xem dữ liệu tĩnh mà lấy dữ liệu thật từ server.
+- Tự làm mới liên tục để hỗ trợ giám sát gần thời gian thực.
+- Có xem lịch sử và ảnh minh chứng sự cố.
+- Có nhận thông báo cháy ngay cả khi người dùng không mở app liên tục.
+
+==================================================
+6. LUỒNG HOẠT ĐỘNG CHI TIẾT CỦA TOÀN HỆ THỐNG
+
+Bước 1: Người dùng chạy server.
+- Server nạp model AI, danh sách khu, token điện thoại.
+- Server mở API/web/giao diện quản lý.
+
+Bước 2: Người dùng chạy client tại máy có camera.
+- Client quét camera.
+- Người dùng chọn camera và chọn khu trống.
+- Client bắt đầu chụp và gửi frame liên tục lên server.
+
+Bước 3: Server nhận frame.
+- Server xác định khu tương ứng.
+- Nếu tới chu kỳ phù hợp thì gọi model YOLO để nhận diện lửa.
+- Server cập nhật trạng thái khu, kích thước ảnh, thời gian, số phát hiện.
+
+Bước 4: Khi phát hiện lửa.
+- Server kiểm tra điều kiện thời gian cảnh báo.
+- Nếu đủ điều kiện thì:
+  + lưu lịch sử sự cố,
+  + lưu ảnh minh chứng,
+  + bật âm thanh cảnh báo,
+  + gửi push notification đến điện thoại.
+
+Bước 5: App điện thoại nhận cảnh báo.
+- App hiển thị notification.
+- Người dùng mở app để xem danh sách khu hoặc chi tiết khu.
+- App tải ảnh khu và lịch sử minh chứng từ server.
+
+Bước 6: Khi client dừng.
+- Client gọi API release để nhả khu.
+- Server cho phép client khác sử dụng khu đó sau này.
+
+==================================================
+7. CÁC MODULE CODE CHÍNH CẦN NHỚ
+
+7.1. Server
+- may_chu_lua.py: file khởi động trung tâm
+- dinh_tuyen_api.py: toàn bộ API route
+- cau_hinh.py: cấu hình hệ thống
+- xu_ly_frame.py: xử lý frame, nhận diện lửa, phát cảnh báo
+- xu_ly_khu.py: quản lý khu giám sát
+- xu_ly_thong_bao_day.py: gửi thông báo FCM
+- xu_ly_lich_su.py: ghi/đọc lịch sử sự cố
+- xu_ly_model.py: nạp model và gọi nhận diện
+- giao_dien_server.py: giao diện desktop server
+- trang_thai.py: lưu trạng thái dùng chung trong bộ nhớ
+
+7.2. Client
+- giao_dien_nguoi_dung.py: giao diện client
+- bo_nhan_dien_lua.py: mở camera, gửi frame, nhả khu
+
+7.3. App điện thoại
+- MainActivity.java: màn hình chính
+- ChiTietKhuActivity.java: màn hình chi tiết khu
+- TaiDuLieuMang.java: gọi API và tải ảnh
+- DichVuNhanThongBaoFirebase.java: nhận FCM
+- GuiTokenFirebaseLenServer.java: gửi token lên server
+- CauHinhServer.java: cấu hình URL server
+- KhuAdapter.java, LichSuAdapter.java: hiển thị danh sách trên giao diện
+
+==================================================
+8. ƯU ĐIỂM CỦA ĐỀ TÀI
+- Hệ thống chia làm 3 phần rõ ràng: thu ảnh - xử lý trung tâm - giám sát từ xa.
+- Có ứng dụng thực tế cao vì hỗ trợ giám sát nhiều khu.
+- Kết hợp AI nhận diện ảnh với cảnh báo trên điện thoại.
+- Có lưu lịch sử và ảnh minh chứng để phục vụ kiểm tra sau sự cố.
+- Có giao diện ở cả máy tính và điện thoại.
+- Có thể triển khai nội bộ hoặc công khai qua Internet.
+
+==================================================
+9. KẾT LUẬN
+Đây là một hệ thống phát hiện lửa theo mô hình phân tán gồm client, server và app điện thoại.
+
+- Client đóng vai trò thu nhận hình ảnh từ camera và truyền về server.
+- Server là trung tâm xử lý, chạy AI nhận diện lửa, quản lý khu, lưu lịch sử và gửi cảnh báo.
+- App điện thoại là công cụ giám sát từ xa, giúp người dùng xem trạng thái và nhận cảnh báo tức thời.
+
+Nhìn tổng thể, đề tài không chỉ dừng ở mức nhận diện ảnh mà đã xây dựng thành một hệ thống hoàn chỉnh có tính ứng dụng thực tế, có truyền dữ liệu mạng, có quản lý nhiều khu, có giao diện, có lưu vết sự cố và có cảnh báo di động.

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="mauNenChinh">#FCF8FA</color>
+    <color name="mauNenThe">#F6F3F5</color>
+    <color name="mauTheNoiBat">#FFF8F8</color>
+    <color name="mauTheDam">#131B2E</color>
+    <color name="mauChuChinh">#0F172A</color>
+    <color name="mauChuPhu">#64748B</color>
+    <color name="mauChuNhat">#CBD5E1</color>
+    <color name="mauDuongVien">#E2E8F0</color>
+
+    <color name="trangThaiTot">#166534</color>
+    <color name="nenTrangThaiTot">#DCFCE7</color>
+    <color name="trangThaiCho">#92400E</color>
+    <color name="nenTrangThaiCho">#FEF3C7</color>
+    <color name="trangThaiLoi">#B91C1C</color>
+    <color name="nenTrangThaiLoi">#FEE2E2</color>
+    <color name="mauChamXanh">#22C55E</color>
+</resources>

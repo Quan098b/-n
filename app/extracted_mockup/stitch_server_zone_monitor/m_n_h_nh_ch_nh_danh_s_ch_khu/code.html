@@ -1,0 +1,248 @@
+<!DOCTYPE html><html class="light" lang="vi"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#f0edef",
+                    "secondary": "#505f76",
+                    "tertiary-fixed": "#fcdeb5",
+                    "on-primary-container": "#7c839b",
+                    "outline": "#76777d",
+                    "on-tertiary-fixed": "#271901",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#303032",
+                    "primary": "#000000",
+                    "on-secondary-fixed": "#0b1c30",
+                    "background": "#fcf8fa",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#eae7e9",
+                    "surface-dim": "#dcd9db",
+                    "secondary-fixed-dim": "#b7c8e1",
+                    "primary-container": "#131b2e",
+                    "secondary-fixed": "#d3e4fe",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "surface-container-low": "#f6f3f5",
+                    "surface-variant": "#e4e2e4",
+                    "on-error": "#ffffff",
+                    "tertiary": "#000000",
+                    "secondary-container": "#d0e1fb",
+                    "surface-tint": "#565e74",
+                    "outline-variant": "#c6c6cd",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-surface": "#1b1b1d",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#574425",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#271901",
+                    "on-secondary-fixed-variant": "#38485d",
+                    "on-secondary-container": "#54647a",
+                    "inverse-on-surface": "#f3f0f2",
+                    "surface-bright": "#fcf8fa",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#dec29a",
+                    "inverse-primary": "#bec6e0",
+                    "on-surface-variant": "#45464d",
+                    "on-tertiary-container": "#98805d",
+                    "primary-fixed": "#dae2fd",
+                    "on-background": "#1b1b1d",
+                    "surface": "#fcf8fa",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#e4e2e4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "sm": "12px",
+                    "md": "16px",
+                    "base": "8px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "gutter": "16px",
+                    "container-margin": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .shadow-soft {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <style data-stitch-cursor=""></style><style data-stitch-scroll-lock=""></style></head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-bright border-b border-outline-variant dark:border-outline fixed top-0 w-full z-50 flex justify-between items-center px-md h-16">
+<div class="flex items-center gap-md">
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full active:opacity-70 transition-all duration-200">
+<span class="material-symbols-outlined text-primary dark:text-on-surface">menu</span>
+</button>
+<div class="flex flex-col">
+<h1 class="text-headline-sm font-headline-sm text-primary dark:text-on-surface tracking-tight">App Giám Sát</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Theo dõi các khu từ server</p>
+</div>
+</div>
+<button class="hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors p-2 rounded-full active:opacity-70 transition-all duration-200">
+<span class="material-symbols-outlined text-primary dark:text-on-surface">refresh</span>
+</button>
+</header>
+<main class="pt-20 px-md space-y-md">
+<!-- Server Status Banner -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between shadow-soft">
+<div class="flex items-center gap-base">
+<div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
+<span class="font-label-md text-label-md text-on-surface">Đã kết nối</span>
+</div>
+<button class="flex items-center gap-xs text-primary hover:bg-surface-container-low px-sm py-1.5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+<span class="text-label-md font-label-md">Làm mới</span>
+</button>
+</div>
+<!-- Monitoring Section -->
+<section class="space-y-md">
+<h2 class="text-label-md font-label-md text-on-surface-variant px-1 uppercase tracking-widest">Danh sách khu vực</h2>
+<div class="grid grid-cols-1 gap-md">
+<!-- Card 1: Khu 1 -->
+<div class="bg-white rounded-xl overflow-hidden shadow-soft border border-transparent hover:border-outline-variant transition-all">
+<div class="relative h-48 w-full">
+<img class="w-full h-full object-cover" data-alt="A clean, brightly lit modern logistics warehouse with tall metal shelving units and organized pallets under high-key industrial lighting. The atmosphere is professional and safe, featuring a light-mode aesthetic with neutral tones and a sense of orderly surveillance. Pristine concrete floors reflect the overhead LED lighting in a spacious, high-fidelity setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBa_yfrAeOoBAp7tnPSHIyEHeE8ZFvjAmMiRP6fT8d45DLQtaNnHoCAbQP71Tg3EhijEXJPVBGIAIDXQ-otxzsM4PquaO-vuOOOk5-XCnuEQpNCVoY8VrZYc41mv6VV3G4KH_uOFWY6uBtMWxNKAlVEM1nwId2k2uB4DNZgz9AU3K0-xhfW1hkdu33n-l2fjDm3U3Hzv0G6TjOtLJT9ZKFMWVR093o4fSJuGRz2iBuxBwBI6YPwHvtis44wpf9T9eNL7S5gbH1UtbcO">
+<div class="absolute top-sm right-sm">
+<span class="bg-emerald-100 text-emerald-800 text-label-sm font-label-sm px-base py-1 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                Đang hoạt động
+                            </span>
+</div>
+</div>
+<div class="p-md flex justify-between items-start">
+<div class="space-y-1">
+<h3 class="text-headline-sm font-headline-sm">Khu 1</h3>
+<div class="flex items-center gap-base text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span class="text-body-md font-body-md">0 phát hiện</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-md font-label-md text-on-surface-variant">10:30</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Khu 2 -->
+<div class="bg-white rounded-xl overflow-hidden shadow-soft border border-error/20 hover:border-error transition-all">
+<div class="relative h-48 w-full">
+<img class="w-full h-full object-cover" data-alt="A professional commercial kitchen with stainless steel appliances and surfaces gleaming under bright, high-contrast overhead lighting. The scene is captured in a minimalist, modern style that emphasizes industrial cleanliness and safety. Subtle warm accents from wooden details complement the primary cool metallic tones of the professional culinary workspace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3Jkqy5aQ6FOcl3lMq-EbqwWJJ4gucbjzW0vRDncXpa0Qsb3JdtWmA8daCBULkIMb3ycpZC1dukV3Z-fbQv0EWedvo0odgnUHR5eX9afG1wj9MzmzXEZQx45soaHrv2CXjRToiprheVZxSeEB6qtZRxaUJPI0AsJ96-g6Lc9hEvG4KKQMCnbSfu7RDFJ5S5HZD-ucMFpsDmCnYRSAJynb0o2WY-jrPJ-X-lR3kDh0_eEHamv_cPj4PBiGbHsOP9MeVSsDtJeMfdp88">
+<div class="absolute top-sm right-sm">
+<span class="bg-emerald-100 text-emerald-800 text-label-sm font-label-sm px-base py-1 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                Đang hoạt động
+                            </span>
+</div>
+<div class="absolute inset-0 bg-error/10 pointer-events-none border-2 border-error rounded-xl"></div>
+</div>
+<div class="p-md flex justify-between items-start">
+<div class="space-y-1">
+<h3 class="text-headline-sm font-headline-sm">Khu 2</h3>
+<div class="flex items-center gap-base text-error">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-body-md font-body-md font-semibold">2 phát hiện</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-md font-label-md text-on-surface-variant">10:31</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Khu 3 -->
+<div class="bg-white rounded-xl overflow-hidden shadow-soft border border-outline-variant/30 hover:border-outline-variant transition-all opacity-90">
+<div class="relative h-48 w-full bg-surface-container-high flex items-center justify-center">
+<div class="flex flex-col items-center text-on-surface-variant gap-base">
+<span class="material-symbols-outlined text-[48px]">videocam_off</span>
+<span class="text-label-md font-label-md">Không có tín hiệu</span>
+</div>
+<div class="absolute top-sm right-sm">
+<span class="bg-amber-100 text-amber-800 text-label-sm font-label-sm px-base py-1 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                                Chưa có dữ liệu
+                            </span>
+</div>
+</div>
+<div class="p-md flex justify-between items-start">
+<div class="space-y-1 text-on-surface-variant">
+<h3 class="text-headline-sm font-headline-sm">Khu 3</h3>
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-[18px]">cloud_off</span>
+<span class="text-body-md font-body-md">Mất kết nối</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-md font-label-md text-on-surface-variant">10:29</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB -->
+
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface dark:bg-surface-bright shadow-[0_-4px_12px_rgba(0,0,0,0.06)] flex justify-around items-center h-20 pb-safe px-base">
+<!-- Giám Sát (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-primary-container text-on-secondary-container dark:text-on-primary-fixed-variant rounded-full px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+<span class="text-label-sm font-label-sm">Giám Sát</span>
+</a>
+<!-- Lịch Sử -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-on-surface active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-label-sm font-label-sm">Lịch Sử</span>
+</a>
+<!-- Cài Đặt -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-on-surface active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-sm font-label-sm">Cài Đặt</span>
+</a>
+</nav>
+
+
+</body></html>
