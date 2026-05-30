@@ -37,6 +37,6 @@ server/static/__pycache__/
 server/templates/__pycache__/
 
 # Ignore separated server project
-server/
+
 server.zip
 app.zip

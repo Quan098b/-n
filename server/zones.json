@@ -1,0 +1,14 @@
+[
+    {
+        "id": "1_257576",
+        "name": "1",
+        "conf_threshold": 0.1,
+        "history_interval": 1
+    },
+    {
+        "id": "2_9e82fa",
+        "name": "2",
+        "conf_threshold": 0.25,
+        "history_interval": 3
+    }
+]
