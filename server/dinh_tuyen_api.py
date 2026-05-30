@@ -19,7 +19,7 @@ from xu_ly_frame import CapNhatFrameChoKhu, LayFrameTheoKhu, MaHoaAnhJpg, TaoFra
 from xu_ly_khu import CapNhatCaiDatKhu, LayAnhChupTrangThaiKhu, ThemKhu, XoaKhu
 from xu_ly_lich_su import DocLichSuKhu, GhiLichSuKhu, THU_MUC_MINH_CHUNG, XoaLichSuKhu
 from xu_ly_thong_bao_day import DangKyTokenDiDong, LayDanhSachTokenDiDong
-
+#chán quán
 
 def DangKyRoutes(app):
     """Đăng ký toàn bộ routes cho ứng dụng Flask."""
